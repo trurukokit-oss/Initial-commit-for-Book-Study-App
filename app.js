@@ -28,192 +28,11 @@ const state = {
     ]
 };
 
-// DOM Elements
-const pages = {
-    search: document.getElementById('page-search'),
-    community: document.getElementById('page-community'),
-    study: document.getElementById('page-study')
-};
-
-const navBtns = {
-    search: document.getElementById('nav-search'),
-    community: document.getElementById('nav-community'),
-    study: document.getElementById('nav-study')
-};
-
-// Navigation Logic
-function switchPage(pageId) {
-    state.currentPage = pageId;
-
-    // Update UI
-    Object.keys(pages).forEach(key => {
-        if (key === pageId) {
-            pages[key].classList.add('active');
-            navBtns[key].classList.add('active');
-        } else {
-            pages[key].classList.remove('active');
-            navBtns[key].classList.remove('active');
-        }
-    });
-
-    if (pageId === 'community') {
-        renderCommunityFeed();
-    } else if (pageId === 'study') {
-        renderStudyPage();
-    }
-}
-
-navBtns.search.addEventListener('click', () => switchPage('search'));
-navBtns.community.addEventListener('click', () => switchPage('community'));
-navBtns.study.addEventListener('click', () => switchPage('study'));
-
-// Search Logic (Mock for now)
-const btnSearch = document.getElementById('btn-search');
-const searchInput = document.getElementById('book-search-input');
-const resultsGrid = document.getElementById('search-results');
-
-btnSearch.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') performSearch();
-});
-
-// Helper to generate CSS book cover
-function createBookCover(book) {
-    const themes = {
-        '1': 'theme-blue',
-        '2': 'theme-purple',
-        '3': 'theme-emerald',
-        'default': 'theme-slate'
-    };
-    const themeClass = themes[book.id] || themes.default;
-
-    return `
-        <div class="book-cover-wrapper ${themeClass}">
-            <div class="book-cover-overlay"></div>
-            <div class="book-cover-title">${book.title}</div>
-            <div class="book-cover-author">${book.author}</div>
-            <div class="book-cover-abstract-svg">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="40" stroke="white" stroke-width="2" stroke-dasharray="4 4"/>
-                    <path d="M50 20V80" stroke="white" stroke-width="2"/>
-                    <path d="M20 50H80" stroke="white" stroke-width="2"/>
-                </svg>
-            </div>
-        </div>
-    `;
-}
-
-async function performSearch() {
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    resultsGrid.innerHTML = '<div class="loader">検索中...</div>';
-
-    try {
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
-        const data = await response.json();
-
-        if (data.items) {
-            const books = data.items.map(item => ({
-                id: item.id,
-                title: item.volumeInfo.title,
-                author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : '不明',
-                cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
-                categories: item.volumeInfo.categories || [],
-                description: item.volumeInfo.description || ""
-            }));
-            renderSearchResults(books);
-        } else {
-            resultsGrid.innerHTML = '<p>該当する本が見つかりませんでした。</p>';
-        }
-    } catch (error) {
-        resultsGrid.innerHTML = '<p>検索中にエラーが発生しました。</p>';
-    }
-}
-
-function renderSearchResults(books) {
-    resultsGrid.innerHTML = '';
-    books.forEach(book => {
-        const card = document.createElement('div');
-        card.className = 'book-card';
-        card.innerHTML = `
-            <div class="book-thumbnail-container">
-                ${book.cover ? `<img src="${book.cover}" alt="${book.title}" class="book-thumbnail">` : `
-                    <div class="placeholder-cover">
-                        <span>${book.title.substring(0, 1)}</span>
-                    </div>
-                `}
-            </div>
-            <div class="book-card-info">
-                <h4>${book.title}</h4>
-                <p>${book.author}</p>
-            </div>
-        `;
-        card.addEventListener('click', () => showAnalysis(book));
-        resultsGrid.appendChild(card);
-    });
-}
-
-// Community Rendering
-function renderCommunityFeed() {
-    const feed = document.getElementById('community-feed');
-    feed.innerHTML = '';
-
-    state.posts.forEach(post => {
-        const postEl = document.createElement('div');
-        postEl.className = 'card post-card';
-        postEl.style.background = 'var(--surface)';
-        postEl.style.padding = '1.5rem';
-        postEl.style.borderRadius = 'var(--radius)';
-        postEl.style.border = '1px solid var(--border)';
-        postEl.style.marginBottom = '1rem';
-
-        postEl.innerHTML = `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
-                <span style="font-weight: 700; font-size: 0.9rem;">${post.user}</span>
-                <span style="color: var(--text-muted); font-size: 0.8rem;">${post.timestamp}</span>
-            </div>
-            <div style="background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 0.75rem; border-left: 3px solid var(--primary);">
-                # ${post.book}
-            </div>
-            <p style="font-size: 0.95rem; margin-bottom: 1rem;">${post.content}</p>
-            <div style="display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
-                <span><i data-lucide="heart" style="width: 16px; height: 16px; display: inline; vertical-align: text-bottom;"></i> ${post.likes}</span>
-                <span><i data-lucide="message-square" style="width: 16px; height: 16px; display: inline; vertical-align: text-bottom;"></i> 返信</span>
-                <span><i data-lucide="repeat" style="width: 16px; height: 16px; display: inline; vertical-align: text-bottom;"></i> 引用</span>
-            </div>
-        `;
-        feed.appendChild(postEl);
-    });
-    lucide.createIcons();
-}
-
-// Voice Recognition Placeholder
-const btnVoice = document.getElementById('btn-voice');
-btnVoice.addEventListener('click', () => {
-    alert('音声認識を開始します（ブラウザのSpeechRecognition APIを使用します）');
-});
-
-function showAnalysis(book) {
-    state.selectedBook = book;
-
-    // Hide search view, show analysis view
-    document.querySelector('.search-hero').classList.add('hidden');
-    document.querySelector('.search-container').classList.add('hidden');
-    resultsGrid.classList.add('hidden');
-
-    const analysisView = document.getElementById('analysis-section');
-    analysisView.classList.remove('hidden');
-
-    // Render Content
-    renderAnalysis(book);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 // Advanced AI Analysis Registry (Specific insights and structure types)
 const bookAnalysisRegistry = {
     '1': {
         title: 'イシューからはじめよ',
+        author: '安宅 和人',
         summary: `　世の中には「努力しているのに結果が出ない人」と「涼しい顔をして圧倒的な成果を出す人」がいます。その違いはどこにあるのでしょうか？この本は、その答えを「やるべきことの選び方」にあると教えてくれます。
 
 　私たちはついつい「100個の問題があれば、100個全部を一生懸命解こう」としてしまいます。しかし、実はその100個のうち、本当に解決する価値がある「本質的な問題」は2、3個しかありません。残りの90個以上は、たとえ解いたとしても状況はほとんど変わらない「偽の問題」なのです。この本では、そのたったひとつの「黄金の鍵」を見つけることを何よりも優先せよと説いています。
@@ -238,6 +57,7 @@ const bookAnalysisRegistry = {
     },
     '2': {
         title: '考える技術・書く技術',
+        author: 'バーバラ・ミント',
         summary: `　「話が長い」「結局何が言いたいかわからない」と言われたことはありませんか？この本は、そんな悩みを解決するための、情報の「並べ方」のバイブルです。私たちの頭は、バラバラの情報をそのまま受け取ることが苦手です。例えば、スーパーで「りんご、歯ブラシ、ほうれん草、石鹸、バナナ…」と10個並べられると覚えきれませんが、「果物グループ」と「日用品グループ」に分けて渡されれば、すんなり理解できます。
 
 　この本が教えてくれる最大の秘訣は、情報を「ピラミッド」のように組み立てることです。一番てっぺんに「結論（一番言いたいこと）」を置き、そのすぐ下に、結論を支える「3つくらいの理由」をぶら下げます。さらにその下に、それぞれの理由を証明する具体的な事実を置いていきます。
@@ -264,6 +84,7 @@ const bookAnalysisRegistry = {
     },
     '3': {
         title: '問いを立てる技術',
+        author: '佐藤 直樹',
         summary: `　AIが何でも答えてくれる時代、一番価値があるのは「答え」ではなく「問い」です。なぜなら、誰もが正解にたどり着けるようになった今、差がつくのは「どこに目を向けるか」という視点の置き方だからです。この本は、当たり前だと思っている前提を疑い、新しい可能性を切り開くための「質問の作り方」を教えてくれます。
 
 　例えば、売上が落ちている時に「どうすれば売れるか？」と問うのは、誰でも思いつく普通の問いです。でも、これでは既存の延長線上の答えしか出ません。そこで、「なぜお客様は、今、うちの商品を買うのをやめて、幸せになっているのか？」と一歩踏込だ変な問いを立ててみます。すると、「あれ、うちの商品って実はお客様の自由を奪っていたのかも？」といった、全く新しい発見が生まれるのです。
@@ -288,63 +109,172 @@ const bookAnalysisRegistry = {
     }
 };
 
-function renderStructure(type, data) {
-    if (type === 'flow') {
-        return `
-            <div class="flow-container">
-                ${data.map(item => `
-                    <div class="flow-step">
-                        <small style="color: var(--primary); font-weight: 700;">${item.label}</small>
-                        <p style="margin-top: 0.25rem;">${item.text}</p>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    } else if (type === 'matrix') {
-        return `
-            <div class="matrix-grid">
-                ${data.map(item => `
-                    <div class="matrix-item">
-                        <h5>${item.title}</h5>
-                        <p style="font-size: 0.85rem;">${item.content}</p>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    } else {
-        // Fallback to Pyramid if type is pyramid or unknown
-        return `
-            <div class="pyramid-level">
-                <div class="pyramid-box top">
-                    <h4>Main Message</h4>
-                    <p>${data.top || '主旨'}</p>
-                </div>
-                <div class="pyramid-connector"></div>
-                <div class="pyramid-branches">
-                    ${(data.reasons || []).map((r, i) => `
-                        <div class="pyramid-box">
-                            <h4>Reason ${i + 1}</h4>
-                            <p>${r}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
+// DOM Elements
+const pages = {
+    search: document.getElementById('page-search'),
+    community: document.getElementById('page-community'),
+    study: document.getElementById('page-study')
+};
+
+const navBtns = {
+    search: document.getElementById('nav-search'),
+    community: document.getElementById('nav-community'),
+    study: document.getElementById('nav-study')
+};
+
+const btnSearch = document.getElementById('btn-search');
+const searchInput = document.getElementById('book-search-input');
+const resultsGrid = document.getElementById('search-results');
+const analysisView = document.getElementById('analysis-section');
+
+// Navigation Logic
+function switchPage(pageId) {
+    state.currentPage = pageId;
+    Object.keys(pages).forEach(key => {
+        if (key === pageId) {
+            pages[key].classList.add('active');
+            navBtns[key].classList.add('active');
+        } else {
+            pages[key].classList.remove('active');
+            navBtns[key].classList.remove('active');
+        }
+    });
+    if (pageId === 'community') renderCommunityFeed();
+    else if (pageId === 'study') renderStudyPage();
+}
+
+navBtns.search.addEventListener('click', () => switchPage('search'));
+navBtns.community.addEventListener('click', () => switchPage('community'));
+navBtns.study.addEventListener('click', () => switchPage('study'));
+
+// Hybrid Search Implementation
+async function performSearch() {
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    resultsGrid.innerHTML = '<div class="loader">検索中...</div>';
+    resultsGrid.classList.remove('hidden');
+    analysisView.classList.add('hidden');
+
+    try {
+        // 1. Check Internal Registry for exact or partial title matches
+        const internalResults = [];
+        Object.keys(bookAnalysisRegistry).forEach(id => {
+            const book = bookAnalysisRegistry[id];
+            if (book.title.includes(query) || query.includes(book.title.substring(0, 4))) {
+                internalResults.push({
+                    id: id,
+                    title: book.title,
+                    author: book.author || '不明',
+                    cover: null, // We'll use placeholder or default image
+                    isInternal: true
+                });
+            }
+        });
+
+        // 2. Fetch from Google Books API
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=8`);
+        const data = await response.json();
+
+        let apiResults = [];
+        if (data.items) {
+            apiResults = data.items.map(item => ({
+                id: item.id,
+                title: item.volumeInfo.title,
+                author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : '不明',
+                cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
+                categories: item.volumeInfo.categories || [],
+                description: item.volumeInfo.description || "",
+                isInternal: false
+            }));
+        }
+
+        // 3. Merge results (Prioritize internal)
+        // Deduplicate: if an API result has the same title as an internal one, skip it
+        const mergedResults = [...internalResults];
+        apiResults.forEach(apiBook => {
+            const isDuplicate = internalResults.some(intBook =>
+                apiBook.title.includes(intBook.title) || intBook.title.includes(apiBook.title)
+            );
+            if (!isDuplicate) {
+                mergedResults.push(apiBook);
+            }
+        });
+
+        if (mergedResults.length > 0) {
+            renderSearchResults(mergedResults);
+        } else {
+            resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">本が見つかりませんでした。別のキーワードをお試しください。</p>';
+        }
+    } catch (error) {
+        console.error("Search Error:", error);
+        resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #ef4444;">エラーが発生しました。インターネット接続を確認してください。</p>';
     }
 }
 
-function renderAnalysis(book) {
-    const analysisView = document.getElementById('analysis-section');
+function renderSearchResults(books) {
+    resultsGrid.innerHTML = '';
+    books.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+            <div class="book-thumbnail-container">
+                ${book.cover ? `<img src="${book.cover}" alt="${book.title}" class="book-thumbnail">` : `
+                    <div class="placeholder-cover">
+                        <span>${book.title.substring(0, 1)}</span>
+                    </div>
+                `}
+            </div>
+            <div class="book-card-info">
+                <h4>${book.title}</h4>
+                <p>${book.author}</p>
+                ${book.isInternal ? '<span style="font-size: 0.7rem; background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; margin-top: 5px; display: inline-block;">プレミアム分析あり</span>' : ''}
+            </div>
+        `;
+        card.addEventListener('click', () => showAnalysis(book));
+        resultsGrid.appendChild(card);
+    });
+}
+
+function showAnalysis(book) {
+    state.selectedBook = book;
+    document.querySelector('.search-hero').classList.add('hidden');
+    document.querySelector('.search-container').classList.add('hidden');
+    resultsGrid.classList.add('hidden');
+    analysisView.classList.remove('hidden');
+    renderAnalysis(book);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideAnalysis() {
+    document.querySelector('.search-hero').classList.remove('hidden');
+    document.querySelector('.search-container').classList.remove('hidden');
+    resultsGrid.classList.remove('hidden');
+    analysisView.classList.add('hidden');
+}
+
+async function renderAnalysis(book) {
     const purpose = document.getElementById('purpose-input').value.trim() || "自己成長とキャッチアップ";
 
-    const info = bookAnalysisRegistry[book.id] || {
-        summary: `${book.title}の核心を掴み、実務に活かすための分析です。`,
-        structureType: 'pyramid',
-        structureData: { top: '知識の構造化', reasons: ['主旨把握', '根拠整理', '具体化'] },
-        actions: ['内容を要約する', '実践する'],
-        keywords: ['読書効率'],
-        imgConcept: '知的な書斎の風景。'
-    };
+    // Find internal info by either ID or matching title
+    let info = bookAnalysisRegistry[book.id];
+    if (!info) {
+        const internalId = Object.keys(bookAnalysisRegistry).find(id =>
+            book.title.includes(bookAnalysisRegistry[id].title) || bookAnalysisRegistry[id].title.includes(book.title)
+        );
+        if (internalId) info = bookAnalysisRegistry[internalId];
+    }
+
+    if (!info) {
+        info = {
+            summary: `　「${book.title}」は、${book.author}氏による著作で、ビジネスや個人の成長に役立つ洞察を提供します。内容を体系的に理解することで、あなたの目的に対する具体的なアプローチが可能になります。`,
+            structureType: 'pyramid',
+            structureData: { top: '知見の活用と実践', reasons: ['現状の整理', '課題の特定', '行動計画の策定'] },
+            actions: ['主要なメッセージをノートに書き出す', '学んだことを一つだけ明日の仕事に取り入れる', '自分なりの要約をSNSでアウトプットする'],
+            keywords: ['キャリアアップ', '実務応用'],
+            imgConcept: '洗練された書斎と、そこから広がる新しい可能性。'
+        };
+    }
 
     analysisView.innerHTML = `
         <button class="btn-back" id="btn-back">
@@ -352,8 +282,8 @@ function renderAnalysis(book) {
         </button>
         
         <div class="analysis-header">
-            <div style="width: 160px; flex-shrink: 0; box-shadow: var(--shadow);">
-                ${createBookCover(book)}
+            <div class="analysis-book-cover">
+                ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
             </div>
             <div class="analysis-book-info">
                 <h3>${book.title}</h3>
@@ -369,14 +299,14 @@ function renderAnalysis(book) {
         
         <section class="summary-section">
             <h4 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 1rem;">エグゼクティブ・サマリー</h4>
-            <p style="font-size: 1rem; color: var(--text-main); line-height: 1.8;">
-                ${info.summary}
-            </p>
+            <div style="font-size: 1rem; color: var(--text-main); line-height: 1.8;">
+                ${info.summary.split('\n\n').map(p => `<p style="text-indent: 1em; margin-bottom: 1rem;">${p.trim().replace(/^　/, '')}</p>`).join('')}
+            </div>
         </section>
 
         <section class="structure-container">
             <h4 style="text-align: center; margin-bottom: 2rem; font-weight: 700;">
-                ${info.structureType === 'flow' ? '思考のプロセス' : info.structureType === 'matrix' ? '多角的なアプローチ' : '論理構造（ピラミッド）'}
+                ${info.structureType === 'flow' ? '思考のプロセス' : info.structureType === 'matrix' ? '比較・分析マトリクス' : '論理構造（ピラミッド）'}
             </h4>
             ${renderStructure(info.structureType, info.structureData)}
         </section>
@@ -387,14 +317,12 @@ function renderAnalysis(book) {
                 ${info.actions.map(a => `<li>${a}</li>`).join('')}
             </ul>
         </section>
-        <section style="margin-top: 3rem; background: #fdf2f8; padding: 1.5rem; border-radius: 8px; border: 1px dashed #f9a8d4;">
-            <h4 style="color: #be185d; margin-bottom: 0.5rem;"><i data-lucide="image"></i> AIビジュアル・コンセプト</h4>
-            <p style="font-size: 0.9rem; color: #9d174d; font-style: italic; line-height: 1.6;">
-                「${info.imgConcept}」
-            </p>
-            <p style="font-size: 0.75rem; color: #db2777; margin-top: 0.5rem; opacity: 0.8;">
-                ※現在AI画像生成ツールが制限中のため、このコンセプトに基づいた装丁案を提示しています。
-            </p>
+
+        <section id="related-books-section" style="margin-top: 3rem;">
+            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary);">
+                <i data-lucide="library"></i> この本に関連するおすすめ
+            </h4>
+            <div id="related-books-grid" class="related-grid"><div class="loader">読み込み中...</div></div>
         </section>
 
         <section style="margin-top: 2rem;">
@@ -408,6 +336,32 @@ function renderAnalysis(book) {
     document.getElementById('btn-back').addEventListener('click', hideAnalysis);
     document.getElementById('btn-save-shelf').addEventListener('click', () => addToBookshelf(book));
     lucide.createIcons();
+
+    // Load related books
+    const relatedBooks = await fetchRelatedBooks(book);
+    const relatedGrid = document.getElementById('related-books-grid');
+    if (relatedGrid) {
+        if (relatedBooks.length > 0) {
+            relatedGrid.innerHTML = '';
+            relatedBooks.forEach(rb => {
+                const item = document.createElement('div');
+                item.className = 'related-book-card';
+                item.innerHTML = `
+                    <div class="related-cover">
+                        ${rb.cover ? `<img src="${rb.cover}" alt="${rb.title}">` : `<div class="placeholder-cover"><span>${rb.title[0]}</span></div>`}
+                    </div>
+                    <div class="related-info">
+                        <h5>${rb.title}</h5>
+                        <p>${rb.author}</p>
+                    </div>
+                `;
+                item.addEventListener('click', () => showAnalysis(rb));
+                relatedGrid.appendChild(item);
+            });
+        } else {
+            relatedGrid.innerHTML = '<p style="color: var(--secondary); font-size: 0.9rem;">関連書籍は見つかりませんでした。</p>';
+        }
+    }
 }
 
 function renderStructure(type, data) {
@@ -471,109 +425,41 @@ async function fetchRelatedBooks(book) {
     }
 }
 
-async function renderAnalysis(book) {
-    const analysisView = document.getElementById('analysis-section');
-    const purpose = document.getElementById('purpose-input').value.trim() || "自己成長とキャッチアップ";
+// Events
+btnSearch.addEventListener('click', performSearch);
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
+});
 
-    const info = bookAnalysisRegistry[book.id] || {
-        summary: `　「${book.title}」は、${book.author}氏によって書かれた、現代のビジネスパーソンにとって非常に示唆に富む一冊です。内容を深く読み解くと、効率的なアウトプットと論理的な思考を支えるための重要なヒントが数多く散りばめられています。
-
-　特筆すべきは、単なる知識の蓄積にとどまらず、いかにしてそれを実務や日常生活に応用するかという「アクション」に焦点を当てている点です。複雑な情報を整理し、本質を見極めるというプロセスを通じて、あなたの生産性は劇的に向上するはずです。`,
-        structureType: 'pyramid',
-        structureData: { top: '知的な活動の最適化', reasons: ['現状の把握と整理', '優先順位の確立', '具体的な実行プラン'] },
-        actions: ['内容を自分なりにマインドマップ化する', '明日からのタスク管理に一つだけ応用する', '身近な人に学んだ内容をアウトプットする'],
-        keywords: ['ビジネススキル', '思考法', '生産性'],
-        imgConcept: '洗練された書斎と、そこから広がる新しい可能性。'
-    };
-
-    analysisView.innerHTML = `
-        <button class="btn-back" id="btn-back">
-            <i data-lucide="arrow-left"></i> 検索結果に戻る
-        </button>
-        
-        <div class="analysis-header">
-            <div class="analysis-book-cover">
-                ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
+// Community and Study
+function renderCommunityFeed() {
+    const feed = document.getElementById('community-feed');
+    feed.innerHTML = '';
+    state.posts.forEach(post => {
+        const postEl = document.createElement('div');
+        postEl.className = 'card post-card';
+        postEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 700; font-size: 0.9rem;">${post.user}</span>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">${post.timestamp}</span>
             </div>
-            <div class="analysis-book-info">
-                <h3>${book.title}</h3>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">${book.author}</p>
-                <div style="background: #eff6ff; padding: 0.75rem; border-radius: 4px; font-size: 0.9rem; border: 1px solid #dbeafe;">
-                    <strong style="color:var(--primary)">あなたの目的:</strong> ${purpose}
-                </div>
-                <button class="btn-save-shelf" id="btn-save-shelf">
-                    <i data-lucide="bookmark-plus"></i> 本棚に追加する
-                </button>
+            <div style="background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 0.75rem; border-left: 3px solid var(--primary);">
+                # ${post.book}
             </div>
-        </div>
-        
-        <section class="summary-section">
-            <h4 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 1rem;">エグゼクティブ・サマリー</h4>
-            <div style="font-size: 1rem; color: var(--text-main); line-height: 1.8;">
-                ${info.summary.split('\n\n').map(p => `<p style="text-indent: 1em; margin-bottom: 1rem;">${p.trim().replace(/^　/, '')}</p>`).join('')}
+            <p style="font-size: 0.95rem; margin-bottom: 1rem;">${post.content}</p>
+            <div style="display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                <span><i data-lucide="heart" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i> ${post.likes}</span>
             </div>
-        </section>
-
-        <section class="structure-container">
-            <h4 style="text-align: center; margin-bottom: 2rem; font-weight: 700;">
-                ${info.structureType === 'flow' ? '思考のプロセス' : info.structureType === 'matrix' ? '比較・分析マトリクス' : '論理構造（ピラミッド）'}
-            </h4>
-            ${renderStructure(info.structureType, info.structureData)}
-        </section>
-
-        <section class="action-section">
-            <h4 style="color: #9d174d; font-weight: 700;"><i data-lucide="zap"></i> 実践アクション</h4>
-            <ul style="padding-left: 1.5rem; font-size: 0.95rem; display: grid; gap: 0.75rem;">
-                ${info.actions.map(a => `<li>${a}</li>`).join('')}
-            </ul>
-        </section>
-
-        <section id="related-books-section" style="margin-top: 3rem;">
-            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary);">
-                <i data-lucide="library"></i> この本に関連するおすすめ
-            </h4>
-            <div id="related-books-grid" class="related-grid">
-                <div class="loader">読み込み中...</div>
-            </div>
-        </section>
-
-        <section style="margin-top: 2rem;">
-            <h4 style="margin-bottom: 1rem;">この本の関連キーワード</h4>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                ${info.keywords.map(k => `<span style="background:#f1f5f9; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--text-muted);"># ${k}</span>`).join('')}
-            </div>
-        </section>
-    `;
-
-    document.getElementById('btn-back').addEventListener('click', hideAnalysis);
-    document.getElementById('btn-save-shelf').addEventListener('click', () => addToBookshelf(book));
+        `;
+        feed.appendChild(postEl);
+    });
     lucide.createIcons();
+}
 
-    // Load related books
-    const relatedBooks = await fetchRelatedBooks(book);
-    const relatedGrid = document.getElementById('related-books-grid');
-    if (relatedGrid) {
-        if (relatedBooks.length > 0) {
-            relatedGrid.innerHTML = '';
-            relatedBooks.forEach(rb => {
-                const item = document.createElement('div');
-                item.className = 'related-book-card';
-                item.innerHTML = `
-                    <div class="related-cover">
-                        ${rb.cover ? `<img src="${rb.cover}" alt="${rb.title}">` : `<div class="placeholder-cover"><span>${rb.title[0]}</span></div>`}
-                    </div>
-                    <div class="related-info">
-                        <h5>${rb.title}</h5>
-                        <p>${rb.author}</p>
-                    </div>
-                `;
-                item.addEventListener('click', () => showAnalysis(rb));
-                relatedGrid.appendChild(item);
-            });
-        } else {
-            relatedGrid.innerHTML = '<p style="color: var(--secondary); font-size: 0.9rem;">関連書籍は見つかりませんでした。</p>';
-        }
-    }
+function renderStudyPage() {
+    renderBookshelf();
+    renderMyPosts();
+    updateBookSelect();
 }
 
 function addToBookshelf(book) {
@@ -583,7 +469,6 @@ function addToBookshelf(book) {
     }
     state.myBooks.push({ ...book, timestamp: Date.now() });
     alert('「マイ書斎」の本棚に追加しました！');
-    if (state.currentPage === 'study') renderStudyPage();
 }
 
 function removeFromBookshelf(bookId, event) {
@@ -601,23 +486,18 @@ function renderBookshelf() {
     countDisplay.textContent = `${state.myBooks.length} 冊の書籍`;
 
     if (state.myBooks.length === 0) {
-        shelf.innerHTML = `
-            <div class="empty-shelf">
-                <i data-lucide="book-open"></i>
-                <p>本棚にまだ書籍がありません。<br>分析した本をここに追加できます。</p>
-            </div>
-        `;
+        shelf.innerHTML = '<div class="empty-shelf"><i data-lucide="book-open"></i><p>本棚にまだ書籍がありません。</p></div>';
     } else {
         shelf.innerHTML = '';
         state.myBooks.forEach(book => {
             const item = document.createElement('div');
             item.className = 'study-book-item';
             item.innerHTML = `
-                <button class="btn-delete-book" title="削除">
-                    <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-                </button>
-                <div style="width: 100%;">${createBookCover(book)}</div>
-                <h4 style="margin-top: 0.5rem; font-size: 0.85rem;">${book.title}</h4>
+                <button class="btn-delete-book" title="削除"><i data-lucide="x" style="width: 14px; height: 14px;"></i></button>
+                <div class="book-thumbnail-container" style="aspect-ratio: 2/3;">
+                    ${book.cover ? `<img src="${book.cover}" alt="${book.title}" class="book-thumbnail">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
+                </div>
+                <h4 style="margin-top: 0.5rem; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${book.title}</h4>
             `;
             item.querySelector('.btn-delete-book').addEventListener('click', (e) => removeFromBookshelf(book.id, e));
             item.addEventListener('click', () => showAnalysis(book));
@@ -629,6 +509,7 @@ function renderBookshelf() {
 
 function updateBookSelect() {
     const select = document.getElementById('study-post-book-select');
+    if (!select) return;
     select.innerHTML = '<option value="">書籍を選択（任意）</option>';
     state.myBooks.forEach(book => {
         const opt = document.createElement('option');
@@ -638,62 +519,45 @@ function updateBookSelect() {
     });
 }
 
-const btnPublish = document.getElementById('btn-post-publish');
-btnPublish.addEventListener('click', () => {
-    const content = document.getElementById('study-post-input').value.trim();
-    const book = document.getElementById('study-post-book-select').value;
-
-    if (!content) return;
-
-    const newPost = {
-        id: Date.now(),
-        user: "あなた",
-        book: book || "思考の整理",
-        content: content,
-        likes: 0,
-        timestamp: "たった今"
-    };
-
-    state.myPosts.unshift(newPost);
-    state.posts.unshift(newPost); // Also add to global community feed (demo purpose)
-
-    document.getElementById('study-post-input').value = '';
-    renderMyPosts();
-    alert('インサイトを投稿しました！');
-});
-
 function renderMyPosts() {
     const list = document.getElementById('study-my-posts');
+    if (!list) return;
     list.innerHTML = '';
-
     if (state.myPosts.length === 0) {
         list.innerHTML = '<p style="color:var(--secondary); font-size:0.9rem; text-align:center; padding: 2rem;">まだ投稿がありません。</p>';
         return;
     }
-
     state.myPosts.forEach(post => {
         const postEl = document.createElement('div');
         postEl.className = 'card post-card';
-        postEl.style.padding = '1rem';
         postEl.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
                 <span style="font-weight: bold; color: var(--primary);"># ${post.book}</span>
                 <span style="color: var(--text-muted);">${post.timestamp}</span>
             </div>
             <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">${post.content}</p>
-            <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
-                <span><i data-lucide="heart" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i> ${post.likes}</span>
-                <span><i data-lucide="repeat" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i> 引用された数: 0</span>
-            </div>
         `;
         list.appendChild(postEl);
     });
     lucide.createIcons();
 }
 
-function hideAnalysis() {
-    document.querySelector('.search-hero').classList.remove('hidden');
-    document.querySelector('.search-container').classList.remove('hidden');
-    resultsGrid.classList.remove('hidden');
-    document.getElementById('analysis-section').classList.add('hidden');
+const btnPublish = document.getElementById('btn-post-publish');
+if (btnPublish) {
+    btnPublish.addEventListener('click', () => {
+        const content = document.getElementById('study-post-input').value.trim();
+        const book = document.getElementById('study-post-book-select').value;
+        if (!content) return;
+        const newPost = { id: Date.now(), user: "あなた", book: book || "思考の整理", content: content, likes: 0, timestamp: "たった今" };
+        state.myPosts.unshift(newPost);
+        state.posts.unshift(newPost);
+        document.getElementById('study-post-input').value = '';
+        renderMyPosts();
+        alert('インサイトを投稿しました！');
+    });
+}
+
+const btnVoice = document.getElementById('btn-voice');
+if (btnVoice) {
+    btnVoice.addEventListener('click', () => alert('音声入力機能を開始します...'));
 }
