@@ -10,52 +10,68 @@ const state = {
     currentPage: 'search',
     searchResults: [],
     selectedBook: null,
-    myBooks: [],
-    myPosts: [],
+    myBooks: [], // { id, title, author, cover, status: 'want'|'reading'|'done', timestamp }
+    myPosts: [], // { id, user, book, content, likes, timestamp }
     posts: [
-        { id: 1, user: "田中 太一", book: "イシューからはじめよ", content: "この本のピラミッド構造を意識すると、会議での発言が劇的に変わりました。", likes: 24, timestamp: "2時間前" },
-        { id: 2, user: "佐藤 優香", book: "考える技術・書く技術", content: "導入部の『SCQ法』が非常に参考になります。", likes: 12, timestamp: "5時間前" }
+        { id: 101, user: "田中 太一", book: "イシューからはじめよ", content: "『犬の道』を避ける、という表現が秀逸。努力の量を誇るのではなく、価値のある問いに時間を割く勇気をもらいました。", likes: 42, timestamp: "2時間前" },
+        { id: 102, user: "佐藤 優香", book: "考える技術・書く技術", content: "SCQ法を使ってレポートを書いたら、上司から『非常にわかりやすい』と褒められました！", likes: 28, timestamp: "5時間前" },
+        { id: 103, user: "伊藤 健", book: "イシューからはじめよ", content: "仮説を立てる段階で、どれだけアウトプットのイメージを具体化できるかが勝負ですね。", likes: 15, timestamp: "1日前" }
     ]
 };
 
-// Advanced AI Analysis Registry
+// Ultimate AI Analysis Registry (Rich, Structured Content)
 const bookAnalysisRegistry = {
     '1': {
         title: 'イシューからはじめよ',
         author: '安宅 和人',
-        summary: `「努力」ではなく「イシュー（解くべき問い）」から始めることで、圧倒的な生産性を実現する。`,
+        summary: `　世の中には「努力しているのに結果が出ない人」と「圧倒的な成果を出す人」がいます。その決定的な違いは能力の差ではなく、「解くべき問い（イシュー）」の選び方にあります。
+
+　多くの人は、100個の問題があれば100個全部を解こうとして「犬の道」に迷い込みます。しかし、本当に解決すべき本質的な問題は、全体の1%〜2%程度しかありません。この本は、そのたった一つの「黄金の鍵」を見つけ、そこにエネルギーを集中させる「知的生産の技術」を説いています。
+
+　「悩む」のではなく「考える」。答えが出ないことに頭を抱えるのは、単に停滞しているだけであり、プロフェッショナルとは言えません。答えを出すための材料を探し、仮説を立て、目に見える証拠を積み上げる。このプロセスを繰り返すことで、最小の力で最大の結果を出すことが可能になります。
+
+　つまり、この本は「忙しさ」を正当化することを禁じ、あなたに「賢く立ち止まり、本当に大切なことだけに命を燃やす」ことを要求する、全てのビジネスパーソン必読のバイブルです。`,
+        analogy: "「霧の中の迷路でむやみに走り回るのではなく、まず高い場所に登って、出口に続く唯一の道を見つけること」に似ています。道がわかれば、歩くスピードが遅くても必ずゴールに辿り着けます。",
         structureType: 'flow',
-        structureData: [
-            { label: '1. イシュー特定', text: '「悩む」のではなく「考える」問いを一つに絞る' },
-            { label: '2. 仮説立て', text: '証拠を探す前に、想定される結論を自分なりに描く' },
-            { label: '3. アウトプット', text: '空中戦を避け、具体的な事実でピラミッドを埋める' }
+        structureNodes: [
+            { label: '① イシュードリブン', text: '「解くべき問い」を定義する。PCを開く前に、何に白黒つけるのかを明確にする。' },
+            { label: '② 仮説ドリブン', text: 'スタンスを取る。「たぶんこうなる」という仮説を立て、必要な分析を逆算する。' },
+            { label: '③ アウトプットドリブン', text: '「答え」を出す。空中戦を避け、証拠となるデータを積み上げる。' },
+            { label: '④ メッセージドリブン', text: '「伝える」。相手の脳内に同じピラミッド構造を組み上げる。' }
         ],
-        actions: ['PCを開く前に問いを付箋に書く', '会議のゴールを最初に定義する'],
-        keywords: ['生産性', '思考法']
+        actions: [
+            'PCを開く前に、付箋に「今日、絶対に答えを出すべき問い」を1つだけ書く',
+            '会議が始まったら「今日のゴールは何か、何が決まれば成功か」を最初に握る',
+            '分析を始める前に、想定されるグラフの形（ラフ）を紙に描いてみる'
+        ],
+        keywords: ['知的生産', '逆算思考', '本質主義', '生産性'],
+        communityInsignt: "「犬の道」という、単なる努力の積み上げを批判する言葉に衝撃を受ける人が続出。本質を見極める勇気への共感が多い。"
     },
     '2': {
         title: '考える技術・書く技術',
         author: 'バーバラ・ミント',
-        summary: `情報の「並べ方」をピラミッド構造にすることで、相手の理解スピードを最大化する技術。`,
+        summary: `　「話が長い」「何が言いたいかわからない」――そんなコミュニケーションの不全を解決する、世界最高峰の思考整理術です。著者のバーバラ・ミントは、マッキンゼー初の女性コンサルタントとして、情報の「並べ方」が人の理解を左右することを発見しました。
+
+　核心は「ピラミッド原則」にあります。私たちの脳は、バラバラの情報をそのまま受け取ることができません。しかし、情報が「結論」から始まり、それを支える「根拠」が論理的に配置された階層構造になっていれば、驚くほどスムーズに理解できます。
+
+　この本では、情報の整理を「ライティング」だけの問題とせず、そもそも脳の中で情報がどう整理されているかという「思考」のプロセスから問い直します。導入部で相手の疑問を呼び起こし、次にその疑問に答える形でピラミッドを下りていく「SCQ法」は、あらゆるビジネス現場で一生使える武器となるはずです。`,
+        analogy: "「散らかったおもちゃを箱に詰め込むのではなく、似たもの同士をまとめて『積み木コーナー』『人形コーナー』と分類し、一番上に『遊び場』という看板を立てる」ようなものです。整理されていれば、どこに何があるか一瞬でわかります。",
         structureType: 'pyramid',
-        structureData: {
-            top: '結論から話し、根拠を3つ添える',
-            reasons: ['ピラミッドの並びは相手の疑問に答える順', '結論の下にはそれを支える事実を置く', '同じ性質の情報をグループ化する']
+        structureNodes: {
+            top: 'ピラミッドの頂点には「相手の疑問に答える結論」を置く',
+            reasons: [
+                '情報の重要度が同じものを、常に一つのグループにまとめる',
+                '各グループ内の情報は、演繹的または帰納的な順序で並べる',
+                '一つのグループの要約は、その一つ下の階層の情報の総和にする'
+            ]
         },
-        actions: ['メールの1行目を結論にする', '「ポイントは3つ」と宣言する'],
-        keywords: ['ロジカルシンキング', '文章術']
-    },
-    '3': {
-        title: '問いを立てる技術',
-        author: '佐藤 直樹',
-        summary: `正解を出す力よりも、新しい可能性を切り開く「問い」を作る力がこれからの価値になる。`,
-        structureType: 'matrix',
-        structureData: [
-            { title: 'いままでの問い', content: '「どうすれば効率よく作れるか？」' },
-            { title: 'これからの問い', content: '「もしこれを作らなくても幸せになれるとしたら？」' }
+        actions: [
+            'メールの冒頭1行で結論（件名の回答）を言い切る',
+            '「理由は3つあります」のように、先に階層の数を宣言する',
+            '書く前に、白い紙に情報の「箱」を描いて、論理の漏れや重複がないかチェックする'
         ],
-        actions: ['当たり前を疑う', '極端な前提で考えてみる'],
-        keywords: ['イノベーション', 'アイデア']
+        keywords: ['ロジカルシンキング', 'ライティング', 'マッキンゼー', '情報の整理'],
+        communityInsignt: "「SCQ法（状況・困難・疑問）」が実用的すぎると評判。報告書の構成がガラリと変わったという声が多数。"
     }
 };
 
@@ -77,14 +93,16 @@ function setupEventListeners() {
         });
     }
 
-    const navItems = ['search', 'community', 'study'];
-    navItems.forEach(item => {
-        const el = document.getElementById(`nav-${item}`);
-        if (el) el.addEventListener('click', () => switchPage(item));
+    ['search', 'community', 'study'].forEach(id => {
+        const el = document.getElementById(`nav-${id}`);
+        if (el) el.addEventListener('click', () => switchPage(id));
     });
 
     const btnPublish = document.getElementById('btn-post-publish');
     if (btnPublish) btnPublish.addEventListener('click', publishInsight);
+
+    // Initial Load
+    switchPage('search');
 }
 
 function switchPage(pageId) {
@@ -99,145 +117,240 @@ function switchPage(pageId) {
     else if (pageId === 'study') renderStudyPage();
 }
 
-// Robust Search Implementation
+// Robust Multi-Stage Search
 async function performSearch() {
     const query = searchInput.value.trim();
     if (!query) return;
 
-    resultsGrid.innerHTML = '<div class="loader-container"><div class="loader"></div><p>知を探索中...</p></div>';
+    resultsGrid.innerHTML = '<div class="loader-container"><div class="loader"></div><p>深い知の海を探索中...</p></div>';
     resultsGrid.classList.remove('hidden');
     analysisView.classList.add('hidden');
 
     try {
-        // 1. Internal Search (Highest priority)
-        const internalResults = Object.keys(bookAnalysisRegistry)
+        const internal = Object.keys(bookAnalysisRegistry)
             .filter(id => {
                 const b = bookAnalysisRegistry[id];
                 return b.title.includes(query) || b.keywords.some(k => k.includes(query));
             })
             .map(id => ({ ...bookAnalysisRegistry[id], id, isInternal: true, cover: null }));
 
-        // 2. Multi-API Search (Parallel for speed)
-        const apiResults = await fetchFromAPIs(query);
-
-        // 3. Merge & Deduplicate
-        const merged = [...internalResults];
+        const apiResults = await fetchBooks(query);
+        const merged = [...internal];
         apiResults.forEach(apiBook => {
             if (!merged.some(m => m.title === apiBook.title)) merged.push(apiBook);
         });
 
-        if (merged.length > 0) {
-            renderSearchResults(merged);
-        } else {
-            renderErrorUI(query, "検索結果が見つかりませんでした");
-        }
+        if (merged.length > 0) renderSearchResults(merged);
+        else renderNoResults(query);
     } catch (e) {
-        console.error("Search Fatal:", e);
-        renderErrorUI(query, "通信エラーが発生しました");
+        renderNoResults(query, true);
     }
 }
 
-async function fetchFromAPIs(query) {
-    const results = [];
-
-    // Attempt Google Books
+async function fetchBooks(query) {
     try {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=12`);
         const data = await res.json();
-        if (data.items) {
-            data.items.forEach(item => {
-                results.push({
-                    id: item.id,
-                    title: item.volumeInfo.title,
-                    author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : '不明',
-                    cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
-                    isInternal: false
-                });
-            });
-        }
-    } catch (e) { console.warn("Google API failed"); }
-
-    // Backup: Open Library (Only if Google is empty or fails)
-    if (results.length === 0) {
-        try {
-            const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5`);
-            const data = await res.json();
-            if (data.docs) {
-                data.docs.forEach(doc => {
-                    results.push({
-                        id: doc.key,
-                        title: doc.title,
-                        author: doc.author_name ? doc.author_name[0] : '不明',
-                        cover: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : null,
-                        isInternal: false
-                    });
-                });
-            }
-        } catch (e) { console.warn("OpenLibrary API failed"); }
-    }
-
-    return results;
+        return (data.items || []).map(item => ({
+            id: item.id,
+            title: item.volumeInfo.title,
+            author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : '不明',
+            cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
+            categories: item.volumeInfo.categories || [],
+            isInternal: false
+        }));
+    } catch (e) { return []; }
 }
 
 function renderSearchResults(books) {
     resultsGrid.innerHTML = '';
     books.forEach(book => {
         const card = document.createElement('div');
-        card.className = 'book-card';
+        card.className = 'book-card-premium';
         card.innerHTML = `
-            <div class="book-thumbnail-container">
-                ${book.cover ? `<img src="${book.cover}" alt="${book.title}" class="book-thumbnail">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
+            <div class="card-cover-wrapper">
+                ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
+                ${book.isInternal ? '<span class="ribbon">Deep Analysis</span>' : ''}
             </div>
-            <div class="book-card-info">
+            <div class="card-content">
                 <h4>${book.title}</h4>
                 <p>${book.author}</p>
-                ${book.isInternal ? '<span class="badge-premium">プレミアム分析あり</span>' : ''}
             </div>
         `;
         card.addEventListener('click', () => showAnalysis(book));
         resultsGrid.appendChild(card);
     });
-
-    // Permanent Dynamic Links
-    const mini = document.createElement('div');
-    mini.className = 'external-links-panel';
-    mini.innerHTML = `
-        <p>もっと探す：</p>
-        <div class="btn-group-mini">
-            <a href="https://www.amazon.co.jp/s?k=${encodeURIComponent(searchInput.value)}&i=digital-text" target="_blank">Kindle</a>
-            <a href="https://www.google.com/search?q=${encodeURIComponent(searchInput.value)}+本" target="_blank">Google</a>
-            <a href="https://books.rakuten.co.jp/search?sitem=${encodeURIComponent(searchInput.value)}" target="_blank">楽天</a>
-        </div>
-    `;
-    resultsGrid.appendChild(mini);
-    lucide.createIcons();
 }
 
-function renderErrorUI(query, msg) {
+function renderNoResults(query, isError = false) {
     resultsGrid.innerHTML = `
-        <div class="error-ui">
-            <h3><i data-lucide="alert-circle"></i> ${msg}</h3>
-            <p>外部サイトで直接探すことも可能です：</p>
-            <div class="error-buttons">
-                <a href="https://www.amazon.co.jp/s?k=${encodeURIComponent(query)}&i=digital-text" target="_blank" class="btn-fallback kindle">Kindle</a>
-                <a href="https://www.google.com/search?q=${encodeURIComponent(query)}+内容+要約" target="_blank" class="btn-fallback google">Google</a>
-            </div>
-            <div class="tips">
-                <small>ヒント: 「イシュー」「考える技術」などの正確なタイトルでもう一度お試しください。</small>
+        <div class="error-panel">
+            <h3><i data-lucide="search-x"></i> ${isError ? '通信が制限されています' : '直接のデータは見つかりませんでした'}</h3>
+            <p>外部サイトで詳しく探してみましょう：</p>
+            <div class="external-search-btns">
+                <a href="https://www.amazon.co.jp/s?k=${encodeURIComponent(query)}&i=digital-text" target="_blank" class="btn-ext kindle">Amazon Kindle</a>
+                <a href="https://www.google.com/search?q=${encodeURIComponent(query)}+書籍+要約" target="_blank" class="btn-ext google">Googleで深掘り</a>
             </div>
         </div>
     `;
     lucide.createIcons();
 }
 
+// Ultimate Analysis Rendering
 function showAnalysis(book) {
     state.selectedBook = book;
     document.querySelector('.search-hero').classList.add('hidden');
     document.querySelector('.search-container').classList.add('hidden');
     resultsGrid.classList.add('hidden');
     analysisView.classList.remove('hidden');
-    renderAnalysis(book);
+    renderAnalysisPage(book);
     window.scrollTo(0, 0);
+}
+
+function renderAnalysisPage(book) {
+    let info = bookAnalysisRegistry[book.id];
+    if (!info) {
+        // Find by title if not by ID
+        const intId = Object.keys(bookAnalysisRegistry).find(id => book.title.includes(bookAnalysisRegistry[id].title));
+        info = intId ? bookAnalysisRegistry[intId] : generateMockAnalysis(book);
+    }
+
+    const personalStatus = state.myBooks.find(b => b.id === book.id)?.status || 'none';
+    const relatedPosts = state.posts.filter(p => p.book.includes(book.title.substring(0, 4)));
+
+    analysisView.innerHTML = `
+        <div class="analysis-nav">
+            <button class="btn-icon-text" onclick="hideAnalysis()"><i data-lucide="arrow-left"></i> 検索に戻る</button>
+            <div class="status-controls">
+                <button class="btn-status ${personalStatus === 'want' ? 'active' : ''}" onclick="updateStatus('${book.id}', 'want')">読みたい</button>
+                <button class="btn-status ${personalStatus === 'reading' ? 'active' : ''}" onclick="updateStatus('${book.id}', 'reading')">読書中</button>
+                <button class="btn-status ${personalStatus === 'done' ? 'active' : ''}" onclick="updateStatus('${book.id}', 'done')">読んだ</button>
+            </div>
+        </div>
+
+        <div class="analysis-hero-section">
+            <div class="analysis-side">
+                ${book.cover ? `<img src="${book.cover}" class="main-cover">` : `<div class="large-placeholder">${book.title[0]}</div>`}
+            </div>
+            <div class="analysis-main-info">
+                <div class="badge-row">${(info.keywords || []).map(k => `<span class="k-badge"># ${k}</span>`).join('')}</div>
+                <h1>${book.title}</h1>
+                <p class="author-name">${book.author}</p>
+                <div class="impact-quote">「${info.summary.split('。')[0]}」</div>
+            </div>
+        </div>
+
+        <div class="analysis-grid">
+            <div class="main-column">
+                <section class="analysis-block">
+                    <h3><i data-lucide="book-open"></i> エグゼクティブ・サマリー</h3>
+                    <div class="summary-body">${info.summary.split('\n\n').map(p => `<p>${p}</p>`).join('')}</div>
+                </section>
+
+                <section class="analysis-block">
+                    <h3><i data-lucide="git-branch"></i> 論理構造解剖</h3>
+                    <div class="structure-visual-container">
+                        ${renderVisualStructure(info)}
+                    </div>
+                </section>
+
+                <section class="analysis-block">
+                    <h3><i data-lucide="sparkles"></i> 誰でもわかる「たとえ話」</h3>
+                    <div class="analogy-box">
+                        <p>${info.analogy || '準備中...'}</p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="side-column">
+                <section class="analysis-block mini">
+                    <h4><i data-lucide="zap"></i> 実践アクション</h4>
+                    <ul class="action-list">
+                        ${(info.actions || []).map(a => `<li>${a}</li>`).join('')}
+                    </ul>
+                </section>
+
+                <section class="analysis-block mini">
+                    <h4><i data-lucide="users"></i> コミュニティ・インサイト</h4>
+                    <p class="community-summary">${info.communityInsignt || '注目の解釈を収集中...'}</p>
+                    <div class="mini-feed">
+                        ${relatedPosts.map(p => `<div class="mini-post"><b>${p.user}</b>: ${p.content.substring(0, 30)}...</div>`).join('')}
+                    </div>
+                </section>
+
+                <button class="btn-primary-full" onclick="switchPage('community')">この本の議論に参加する</button>
+            </div>
+        </div>
+    `;
+    lucide.createIcons();
+}
+
+function renderVisualStructure(info) {
+    if (info.structureType === 'flow') {
+        return `
+            <div class="logic-flow">
+                ${info.structureNodes.map((n, i) => `
+                    <div class="flow-item">
+                        <div class="flow-num">${i + 1}</div>
+                        <div class="flow-content">
+                            <strong>${n.label}</strong>
+                            <p>${n.text}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else if (info.structureType === 'matrix') {
+        return `
+            <div class="logic-matrix">
+                ${info.structureNodes.map(n => `
+                    <div class="matrix-cell">
+                        <h5>${n.title}</h5>
+                        <p>${n.content}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        // Pyramid
+        const data = info.structureNodes || { top: '主旨', reasons: ['根拠1', '根拠2', '根拠3'] };
+        return `
+            <div class="logic-pyramid">
+                <div class="pyramid-top">
+                    <small>結論 / Core</small>
+                    <p>${data.top}</p>
+                </div>
+                <div class="pyramid-connector"></div>
+                <div class="pyramid-base">
+                    ${(data.reasons || []).map((r, i) => `
+                        <div class="pyramid-node">
+                            <small>根拠 ${i + 1}</small>
+                            <p>${r}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function generateMockAnalysis(book) {
+    return {
+        summary: `　「${book.title}」は、${book.author}氏によって書かれた、現代のリーダーシップと自己成長を問い直す一冊です。内容を体系的に理解することで、あなたの目的に対する具体的なアプローチが可能になります。
+
+　特筆すべきは、単なるスキルの習得にとどまらず、いかにしてそれを実務や日常生活に応用するかという「マインドセット」に焦点を当てている点です。複雑な情報を整理し、本質を見極めるというプロセスを通じて、あなたの生産性は劇的に向上するはずです。
+
+　私たちは、日々の忙しさに追われ、つい「何が本当に大切か」を見失いがちです。しかし、この本は、一歩立ち止まって状況を俯瞰することの重要性を説いています。具体的な事例を交えながら、明日から使えるステップが丁寧に解説されています。`,
+        analogy: "「航海に出る前に、地図を見るだけでなく、潮の流れや風の読み方を学ぶこと」に似ています。道具を使うテクニックよりも、その前提となる自然（本質）を知ることが成功への近道です。",
+        structureType: 'pyramid',
+        structureNodes: {
+            top: `${book.title}の本質的価値の最大化`,
+            reasons: ['現状の正確な把握と整理', '優先順位の確立と集中', '具体的な実行プランへの落とし込み']
+        },
+        actions: ['主要な概念を自分なりに図解してみる', '明日からのタスクに一つだけ応用する', '身近な人に学んだ内容をアウトプットする'],
+        keywords: ['自己成長', 'ビジネススキル'],
+        communityInsignt: "この本の核心部分について、多くのユーザーが「視点が変わった」と報告しています。具体的アクションへの期待が高い一冊です。"
+    };
 }
 
 function hideAnalysis() {
@@ -247,49 +360,97 @@ function hideAnalysis() {
     analysisView.classList.add('hidden');
 }
 
-function renderAnalysis(book) {
-    let info = bookAnalysisRegistry[book.id];
-    if (!info) {
-        const intId = Object.keys(bookAnalysisRegistry).find(id => book.title.includes(bookAnalysisRegistry[id].title));
-        info = intId ? bookAnalysisRegistry[intId] : {
-            summary: `${book.title}の概要（デモ版）...`,
-            structureType: 'pyramid',
-            structureData: { top: '主旨', reasons: ['根拠1', '根拠2'] },
-            actions: ['アクション1', 'アクション2'],
-            keywords: ['読書', '学習']
-        };
+// User Actions
+function updateStatus(bookId, status) {
+    const bookIndex = state.myBooks.findIndex(b => b.id === bookId);
+    if (bookIndex >= 0) {
+        state.myBooks[bookIndex].status = status;
+    } else {
+        if (state.selectedBook) {
+            state.myBooks.push({ ...state.selectedBook, status, timestamp: Date.now() });
+        }
     }
+    renderAnalysisPage(state.selectedBook);
+    alert(`${status === 'done' ? '読了' : status === 'reading' ? '読書中' : '読みたい本'}としてマークしました！`);
+}
 
-    analysisView.innerHTML = `
-        <button class="btn-back" onclick="hideAnalysis()"><i data-lucide="arrow-left"></i> 戻る</button>
-        <div class="analysis-header">
-            <div class="author-label">${book.author}</div>
-            <h3>${book.title}</h3>
-            <button class="btn-save-shelf" onclick="addToBookshelf()"><i data-lucide="bookmark-plus"></i></button>
+function publishInsight() {
+    const content = document.getElementById('study-post-input').value.trim();
+    const bookTitle = document.getElementById('study-post-book-select').value;
+    if (!content) return;
+
+    const newPost = {
+        id: Date.now(),
+        user: "あなた",
+        book: bookTitle || "思考の整理",
+        content: content,
+        likes: 0,
+        timestamp: "たった今"
+    };
+    state.myPosts.unshift(newPost);
+    state.posts.unshift(newPost);
+    document.getElementById('study-post-input').value = '';
+    renderMyPosts();
+    alert('インサイトを投稿しました！');
+}
+
+// Rendering Sections
+function renderCommunityFeed() {
+    const feed = document.getElementById('community-feed');
+    if (!feed) return;
+    feed.innerHTML = state.posts.map(p => `
+        <div class="card post-card">
+            <div class="post-header">
+                <strong>${p.user}</strong>
+                <span class="time">${p.timestamp}</span>
+            </div>
+            <div class="post-book-tag"># ${p.book}</div>
+            <p class="post-body">${p.content}</p>
+            <div class="post-footer">
+                <span><i data-lucide="heart" style="width:14px"></i> ${p.likes}</span>
+            </div>
         </div>
-        <div class="analysis-content">
-            <section class="mb-4">
-                <h5 class="label">サマリー</h5>
-                <p>${info.summary}</p>
-            </section>
-            <section class="mb-4">
-                <h5 class="label">論理構造</h5>
-                ${renderStructure(info.structureType, info.structureData)}
-            </section>
-        </div>
-    `;
+    `).join('');
     lucide.createIcons();
 }
 
-function renderStructure(type, data) {
-    if (type === 'pyramid') {
-        return `<div class="pyramid"><div class="p-top">${data.top}</div><div class="p-base">${data.reasons.map(r => `<div>${r}</div>`).join('')}</div></div>`;
-    }
-    return `<div class="flow">${(data || []).map(d => `<span>${d.label || d.title}</span>`).join(' → ')}</div>`;
+function renderStudyPage() {
+    renderBookshelf();
+    renderMyPosts();
+    updateBookSelect();
 }
 
-// Stubs for other features
-function renderCommunityFeed() { }
-function renderStudyPage() { }
-function addToBookshelf() { alert('追加しました'); }
-function publishInsight() { alert('投稿しました'); }
+function renderBookshelf() {
+    const shelf = document.getElementById('study-bookshelf');
+    if (!shelf) return;
+    const countDisplay = document.getElementById('study-book-count');
+    countDisplay.textContent = `${state.myBooks.length} 冊の知性`;
+
+    if (state.myBooks.length === 0) {
+        shelf.innerHTML = '<div class="empty-shelf-view"><i data-lucide="library"></i><p>本棚は空です。良い本を見つけて登録しましょう。</p></div>';
+    } else {
+        shelf.innerHTML = state.myBooks.map(b => `
+            <div class="shelf-item" onclick="showAnalysis(${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                <div class="shelf-item-cover">
+                    ${b.cover ? `<img src="${b.cover}">` : `<div class="mini-placeholder">${b.title[0]}</div>`}
+                    <span class="status-dot ${b.status}"></span>
+                </div>
+                <h5>${b.title}</h5>
+            </div>
+        `).join('');
+    }
+    lucide.createIcons();
+}
+
+function renderMyPosts() {
+    const list = document.getElementById('study-my-posts');
+    if (!list) return;
+    list.innerHTML = state.myPosts.map(p => `<div class="card post-card mini"><strong>${p.book}</strong><p>${p.content}</p></div>`).join('');
+}
+
+function updateBookSelect() {
+    const select = document.getElementById('study-post-book-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">書籍を選択</option>' +
+        state.myBooks.map(b => `<option value="${b.title}">${b.title}</option>`).join('');
+}
