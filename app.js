@@ -110,17 +110,24 @@ async function performSearch() {
     resultsGrid.innerHTML = '<div class="loader">検索中...</div>';
 
     try {
-        // In a real scenario, we would call Google Books API
-        // For now, let's use mock data to show the UI
-        setTimeout(() => {
-            renderSearchResults([
-                { id: '1', title: 'イシューからはじめよ', author: '安宅 和人' },
-                { id: '2', title: '考える技術・書く技術', author: 'バーバラ・ミント' },
-                { id: '3', title: '問いを立てる技術', author: '佐藤 直樹' }
-            ]);
-        }, 800);
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+        const data = await response.json();
+
+        if (data.items) {
+            const books = data.items.map(item => ({
+                id: item.id,
+                title: item.volumeInfo.title,
+                author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : '不明',
+                cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
+                categories: item.volumeInfo.categories || [],
+                description: item.volumeInfo.description || ""
+            }));
+            renderSearchResults(books);
+        } else {
+            resultsGrid.innerHTML = '<p>該当する本が見つかりませんでした。</p>';
+        }
     } catch (error) {
-        resultsGrid.innerHTML = '<p>エラーが発生しました。</p>';
+        resultsGrid.innerHTML = '<p>検索中にエラーが発生しました。</p>';
     }
 }
 
@@ -130,9 +137,17 @@ function renderSearchResults(books) {
         const card = document.createElement('div');
         card.className = 'book-card';
         card.innerHTML = `
-            ${createBookCover(book)}
-            <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">${book.title}</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">${book.author}</p>
+            <div class="book-thumbnail-container">
+                ${book.cover ? `<img src="${book.cover}" alt="${book.title}" class="book-thumbnail">` : `
+                    <div class="placeholder-cover">
+                        <span>${book.title.substring(0, 1)}</span>
+                    </div>
+                `}
+            </div>
+            <div class="book-card-info">
+                <h4>${book.title}</h4>
+                <p>${book.author}</p>
+            </div>
         `;
         card.addEventListener('click', () => showAnalysis(book));
         resultsGrid.appendChild(card);
@@ -439,17 +454,36 @@ function renderStructure(type, data) {
     }
 }
 
-function renderAnalysis(book) {
+async function fetchRelatedBooks(book) {
+    const query = (book.categories && book.categories.length > 0) ? book.categories[0] : book.title;
+    try {
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=4`);
+        const data = await response.json();
+        return data.items ? data.items.map(item => ({
+            id: item.id,
+            title: item.volumeInfo.title,
+            author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : '不明',
+            cover: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
+            categories: item.volumeInfo.categories || []
+        })).filter(b => b.id !== book.id) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+async function renderAnalysis(book) {
     const analysisView = document.getElementById('analysis-section');
     const purpose = document.getElementById('purpose-input').value.trim() || "自己成長とキャッチアップ";
 
     const info = bookAnalysisRegistry[book.id] || {
-        summary: `${book.title}の核心を掴み、実務に活かすための分析です。`,
+        summary: `　「${book.title}」は、${book.author}氏によって書かれた、現代のビジネスパーソンにとって非常に示唆に富む一冊です。内容を深く読み解くと、効率的なアウトプットと論理的な思考を支えるための重要なヒントが数多く散りばめられています。
+
+　特筆すべきは、単なる知識の蓄積にとどまらず、いかにしてそれを実務や日常生活に応用するかという「アクション」に焦点を当てている点です。複雑な情報を整理し、本質を見極めるというプロセスを通じて、あなたの生産性は劇的に向上するはずです。`,
         structureType: 'pyramid',
-        structureData: { top: '知識の構造化', reasons: ['主旨把握', '根拠整理', '具体化'] },
-        actions: ['内容を要約する', '実践する'],
-        keywords: ['読書効率'],
-        imgConcept: '知的な書斎の風景。'
+        structureData: { top: '知的な活動の最適化', reasons: ['現状の把握と整理', '優先順位の確立', '具体的な実行プラン'] },
+        actions: ['内容を自分なりにマインドマップ化する', '明日からのタスク管理に一つだけ応用する', '身近な人に学んだ内容をアウトプットする'],
+        keywords: ['ビジネススキル', '思考法', '生産性'],
+        imgConcept: '洗練された書斎と、そこから広がる新しい可能性。'
     };
 
     analysisView.innerHTML = `
@@ -458,8 +492,8 @@ function renderAnalysis(book) {
         </button>
         
         <div class="analysis-header">
-            <div style="width: 160px; flex-shrink: 0; box-shadow: var(--shadow);">
-                ${createBookCover(book)}
+            <div class="analysis-book-cover">
+                ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : `<div class="placeholder-cover"><span>${book.title[0]}</span></div>`}
             </div>
             <div class="analysis-book-info">
                 <h3>${book.title}</h3>
@@ -482,7 +516,7 @@ function renderAnalysis(book) {
 
         <section class="structure-container">
             <h4 style="text-align: center; margin-bottom: 2rem; font-weight: 700;">
-                ${info.structureType === 'flow' ? '思考のプロセス' : info.structureType === 'matrix' ? '多角的なアプローチ' : '論理構造（ピラミッド）'}
+                ${info.structureType === 'flow' ? '思考のプロセス' : info.structureType === 'matrix' ? '比較・分析マトリクス' : '論理構造（ピラミッド）'}
             </h4>
             ${renderStructure(info.structureType, info.structureData)}
         </section>
@@ -494,14 +528,13 @@ function renderAnalysis(book) {
             </ul>
         </section>
 
-        <section style="margin-top: 3rem; background: #fdf2f8; padding: 1.5rem; border-radius: 8px; border: 1px dashed #f9a8d4;">
-            <h4 style="color: #be185d; margin-bottom: 0.5rem;"><i data-lucide="image"></i> AIビジュアル・コンセプト</h4>
-            <p style="font-size: 0.9rem; color: #9d174d; font-style: italic; line-height: 1.6;">
-                「${info.imgConcept}」
-            </p>
-            <p style="font-size: 0.75rem; color: #db2777; margin-top: 0.5rem; opacity: 0.8;">
-                ※現在AI画像生成ツールが制限中のため、このコンセプトに基づいた装丁案を提示しています。
-            </p>
+        <section id="related-books-section" style="margin-top: 3rem;">
+            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary);">
+                <i data-lucide="library"></i> この本に関連するおすすめ
+            </h4>
+            <div id="related-books-grid" class="related-grid">
+                <div class="loader">読み込み中...</div>
+            </div>
         </section>
 
         <section style="margin-top: 2rem;">
@@ -515,6 +548,32 @@ function renderAnalysis(book) {
     document.getElementById('btn-back').addEventListener('click', hideAnalysis);
     document.getElementById('btn-save-shelf').addEventListener('click', () => addToBookshelf(book));
     lucide.createIcons();
+
+    // Load related books
+    const relatedBooks = await fetchRelatedBooks(book);
+    const relatedGrid = document.getElementById('related-books-grid');
+    if (relatedGrid) {
+        if (relatedBooks.length > 0) {
+            relatedGrid.innerHTML = '';
+            relatedBooks.forEach(rb => {
+                const item = document.createElement('div');
+                item.className = 'related-book-card';
+                item.innerHTML = `
+                    <div class="related-cover">
+                        ${rb.cover ? `<img src="${rb.cover}" alt="${rb.title}">` : `<div class="placeholder-cover"><span>${rb.title[0]}</span></div>`}
+                    </div>
+                    <div class="related-info">
+                        <h5>${rb.title}</h5>
+                        <p>${rb.author}</p>
+                    </div>
+                `;
+                item.addEventListener('click', () => showAnalysis(rb));
+                relatedGrid.appendChild(item);
+            });
+        } else {
+            relatedGrid.innerHTML = '<p style="color: var(--secondary); font-size: 0.9rem;">関連書籍は見つかりませんでした。</p>';
+        }
+    }
 }
 
 function addToBookshelf(book) {
