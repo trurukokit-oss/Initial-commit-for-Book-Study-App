@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookInsight - 効率的な読書のためのインテリジェント・ツール</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <h1 class="logo">BookInsight</h1>
+            <nav class="nav">
+                <button class="nav-btn active" id="nav-search">検索・分析</button>
+                <button class="nav-btn" id="nav-community">コミュニティ</button>
+                <button class="nav-btn" id="nav-study">マイ書斎</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <!-- Search Page -->
+        <section id="page-search" class="page active">
+            <div class="search-hero">
+                <h2>読書を、解釈と実践のステップへ。</h2>
+                <p>本の論理構造を瞬時に理解し、あなたの目的に合わせたアクションを導き出します。</p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="book-search-input" placeholder="本のタイトル、著者を入力...">
+                    <button id="btn-search">検索</button>
+                </div>
+
+                <div class="purpose-container">
+                    <label for="purpose-input">読書の目的・現在の悩み（任意）</label>
+                    <div class="purpose-input-wrapper">
+                        <textarea id="purpose-input" placeholder="なぜこの本を読もうと思いましたか？解決したい課題はありますか？"></textarea>
+                        <button id="btn-voice" title="音声入力">
+                            <i data-lucide="mic"></i>
+                        </button>
+                    </div>
+                    <p class="hint">※入力すると、AIがあなたの状況に合わせた解決策を提案します。</p>
+                </div>
+            </div>
+
+            <div id="search-results" class="results-grid">
+                <!-- Book cards will be injected here -->
+            </div>
+
+            <div id="analysis-section" class="analysis-view hidden">
+                <!-- Analysis Content will be injected here -->
+            </div>
+        </section>
+
+        <!-- Community Page -->
+        <section id="page-community" class="page">
+            <div class="community-header">
+                <h2>プラットフォーム</h2>
+                <div class="community-search">
+                    <input type="text" id="community-search" placeholder="キーワードで投稿を検索...">
+                </div>
+            </div>
+
+            <div class="community-layout">
+                <div class="community-feed" id="community-feed">
+                    <!-- Posts will be injected here -->
+                </div>
+                <aside class="community-sidebar">
+                    <div class="card">
+                        <h3>注目の書籍</h3>
+                        <ul id="trending-books">
+                            <li># 問いを立てる技術</li>
+                            <li># イシューからはじめよ</li>
+                            <li># 考える技術・書く技術</li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- My Study Page -->
+        <section id="page-study" class="page">
+            <div class="study-hero">
+                <h2>マイ書斎</h2>
+                <p>あなたが積み上げた知性の集積、そして発信の拠点。</p>
+            </div>
+
+            <div class="study-layout">
+                <div class="shelf-section">
+                    <div class="section-header">
+                        <h3><i data-lucide="library"></i> 私の本棚</h3>
+                        <div class="shelf-controls">
+                            <select id="shelf-sort-select" class="sort-select">
+                                <option value="date-desc">追加日（新しい順）</option>
+                                <option value="date-asc">追加日（古い順）</option>
+                                <option value="title-asc">タイトル（昇順）</option>
+                            </select>
+                            <span class="book-count" id="study-book-count">0 冊の書籍</span>
+                        </div>
+                    </div>
+                    <div id="study-bookshelf" class="bookshelf-grid">
+                        <!-- Saved books will be injected here -->
+                        <div class="empty-shelf">
+                            <i data-lucide="book-open"></i>
+                            <p>本棚にまだ書籍がありません。<br>分析した本をここに追加できます。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <div class="create-post-card card">
+                        <h3><i data-lucide="pen-tool"></i> インサイトを発信する</h3>
+                        <textarea id="study-post-input" placeholder="この書籍から得た、あなただけの解釈や、次に実践することを発信しましょう。"></textarea>
+                        <div class="post-actions">
+                            <select id="study-post-book-select">
+                                <option value="">書籍を選択（任意）</option>
+                            </select>
+                            <button id="btn-post-publish" class="btn-primary">投稿する</button>
+                        </div>
+                    </div>
+
+                    <div class="my-posts-list">
+                        <h3>あなたの投稿</h3>
+                        <div id="study-my-posts">
+                            <!-- User posts will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BookInsight. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
