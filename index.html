@@ -27,38 +27,56 @@
     </header>
 
     <main class="container page-content">
-        <!-- Search Page -->
+        <!-- NotebookLM-style Search & Notebook Page -->
         <section id="page-search" class="page active">
-            <div class="search-hero">
-                <h2>読書を、解釈と実践のステップへ。</h2>
-                <p>本の論理構造を瞬時に理解し、あなたの目的に合わせたアクションを導き出します。</p>
-            </div>
-
-            <div class="search-container">
-                <div class="search-box">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="book-search-input" placeholder="本のタイトル、著者を入力...">
-                    <button id="btn-search">検索</button>
-                </div>
-
-                <div class="purpose-container">
-                    <label for="purpose-input">読書の目的・現在の悩み（任意）</label>
-                    <div class="purpose-input-wrapper">
-                        <textarea id="purpose-input" placeholder="なぜこの本を読もうと思いましたか？解決したい課題はありますか？"></textarea>
-                        <button id="btn-voice" title="音声入力">
-                            <i data-lucide="mic"></i>
+            <div class="notebook-layout">
+                <!-- Left Side: Source Management -->
+                <aside class="notebook-sidebar">
+                    <div class="sidebar-header">
+                        <h3><i data-lucide="book-copy"></i> ソース</h3>
+                        <button id="btn-add-source" class="btn-ghost" title="本を検索・追加">
+                            <i data-lucide="plus"></i>
                         </button>
                     </div>
-                    <p class="hint">※入力すると、AIがあなたの状況に合わせた解決策を提案します。</p>
+
+                    <div id="notebook-sources" class="sources-list">
+                        <!-- Added books will appear here -->
+                        <div class="empty-sources">
+                            <p>ソースがありません</p>
+                        </div>
+                    </div>
+
+                    <div class="search-overlay hidden" id="search-overlay">
+                        <div class="search-box-modal">
+                            <div class="search-header">
+                                <h4>本を検索して追加</h4>
+                                <button id="btn-close-search" class="btn-ghost"><i data-lucide="x"></i></button>
+                            </div>
+                            <div class="search-input-group">
+                                <input type="text" id="book-search-input" placeholder="タイトル、著者を入力...">
+                                <button id="btn-search">検索</button>
+                            </div>
+                            <div id="search-results" class="results-list-compact">
+                                <!-- Compact search results -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Right Side: Deep Analysis Content -->
+                <div class="notebook-main">
+                    <div id="notebook-welcome" class="notebook-empty-view">
+                        <div class="welcome-content">
+                            <i data-lucide="book-open-check"></i>
+                            <h2>知のノートブックへようこそ</h2>
+                            <p>左側の「＋」ボタンから本を追加して、深層分析を開始しましょう。</p>
+                        </div>
+                    </div>
+
+                    <div id="analysis-section" class="analysis-view hidden">
+                        <!-- Notebook Analysis Content will be injected here -->
+                    </div>
                 </div>
-            </div>
-
-            <div id="search-results" class="results-grid">
-                <!-- Book cards will be injected here -->
-            </div>
-
-            <div id="analysis-section" class="analysis-view hidden">
-                <!-- Analysis Content will be injected here -->
             </div>
         </section>
 
