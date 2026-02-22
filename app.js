@@ -224,15 +224,11 @@ function renderSearchResults(books) {
             <div class="card-content">
                 <h4>${book.title}</h4>
                 <p>${book.author}</p>
-                <a href="https://calil.jp/search?q=${encodeURIComponent(book.title)}" target="_blank" class="lib-link-btn" onclick="event.stopPropagation()">
-                    <i data-lucide="library"></i> 図書館で探す
-                </a>
             </div>
         `;
         card.addEventListener('click', () => showAnalysis(book));
         resultsGrid.appendChild(card);
     });
-    lucide.createIcons();
 }
 
 function renderNoResults(query, isError = false) {
@@ -288,11 +284,6 @@ function renderAnalysisPage(book) {
                 <h1>${book.title}</h1>
                 <p class="author-name">${book.author}</p>
                 <div class="impact-quote">「${info.summary.split('。')[0]}」</div>
-                <div style="margin-top: 1rem;">
-                    <a href="https://calil.jp/search?q=${encodeURIComponent(book.title)}" target="_blank" class="lib-link-btn">
-                        <i data-lucide="map-pin"></i> 図書館の所蔵を確認
-                    </a>
-                </div>
             </div>
         </div>
 
@@ -381,16 +372,77 @@ function renderCommunityFeed() {
 }
 
 function renderStudyPage() { renderBookshelf(); renderMyPosts(); updateBookSelect(); }
+
 function renderBookshelf() {
     const shelf = document.getElementById('study-bookshelf');
     if (!shelf) return;
-    shelf.innerHTML = state.myBooks.length === 0 ? '<p>本棚は空です。</p>' : state.myBooks.map(b => `<div class="shelf-item" style="padding:0.5rem;border:1px solid var(--border);border-radius:4px;text-align:center;background:white"><h5>${b.title}</h5></div>`).join('');
+
+    const countDisplay = document.getElementById('study-book-count');
+    const doneCount = state.myBooks.filter(b => b.status === 'done').length;
+    const readingCount = state.myBooks.filter(b => b.status === 'reading').length;
+    const wantCount = state.myBooks.filter(b => b.status === 'want').length;
+
+    countDisplay.innerHTML = `
+        <span class="stat-badge done">完了 ${doneCount}</span>
+        <span class="stat-badge reading">挑戦中 ${readingCount}</span>
+        <span class="stat-badge want">興味 ${wantCount}</span>
+    `;
+
+    if (state.myBooks.length === 0) {
+        shelf.innerHTML = '<div class="empty-shelf-view"><i data-lucide="library"></i><p>本棚は空です。良い本を見つけて登録しましょう。</p></div>';
+    } else {
+        const statuses = [
+            { id: 'reading', label: '現在読み込み中' },
+            { id: 'want', label: 'いつか読みたい' },
+            { id: 'done', label: '思考の糧とした本' }
+        ];
+
+        shelf.innerHTML = statuses.map(s => {
+            const books = state.myBooks.filter(b => b.status === s.id);
+            if (books.length === 0) return '';
+            return `
+                <div class="shelf-group">
+                    <h4 class="shelf-group-title"><span class="dot-${s.id}"></span> ${s.label}</h4>
+                    <div class="shelf-grid-mini">
+                        ${books.map(b => `
+                            <div class="shelf-item-v2" onclick="showAnalysis(${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                                <div class="shelf-v2-cover">
+                                    ${b.cover ? `<img src="${b.cover}">` : `<div class="mini-placeholder">${b.title[0]}</div>`}
+                                </div>
+                                <div class="shelf-v2-info">
+                                    <h5>${b.title}</h5>
+                                    <p>${b.author}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('') || '<p class="empty-shelf-text">まだ登録された本がありません。</p>';
+    }
+    lucide.createIcons();
 }
+
 function renderMyPosts() {
     const list = document.getElementById('study-my-posts');
-    if (list) list.innerHTML = state.myPosts.map(p => `<div style="font-size:0.85rem;margin-bottom:0.5rem;padding:0.5rem;background:#f1f5f9;border-radius:4px"><b>${p.book}</b>: ${p.content}</div>`).join('');
+    if (!list) return;
+    if (state.myPosts.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">まだ投稿がありません。</p>';
+        return;
+    }
+    list.innerHTML = state.myPosts.map(p => `
+        <div class="my-post-card">
+            <div class="my-post-book"># ${p.book}</div>
+            <p class="my-post-content">${p.content}</p>
+            <div class="my-post-time">${p.timestamp}</div>
+        </div>
+    `).join('');
 }
+
 function updateBookSelect() {
     const select = document.getElementById('study-post-book-select');
-    if (select) select.innerHTML = '<option value="">書籍を選択</option>' + state.myBooks.map(b => `<option value="${b.title}">${b.title}</option>`).join('');
+    if (select) {
+        const options = state.myBooks.map(b => `<option value="${b.title}">${b.title}</option>`).join('');
+        select.innerHTML = '<option value="">書籍を選択（任意）</option>' + options;
+    }
 }
